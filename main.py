@@ -1,9 +1,8 @@
-"""The Leap — ai-excited-01 entry.
+"""The Leap, round 4: copy the entry image to the output directory.
 
-Copies the entry image (entry.png, sitting beside this script) into the
-output directory required by the competition harness. The copy is
-byte-for-byte, so the program is fully deterministic: every run produces
-the identical output file.
+Reads entry.png from this repository and writes it, byte for byte, to
+$MAKEFUN_OUTPUT_DIR/entry.png (or /output/entry.png when the variable
+is unset). Deterministic: both runs write identical bytes.
 """
 
 import os
@@ -11,15 +10,18 @@ import shutil
 import sys
 
 
-def main() -> int:
-    # The source image lives next to this script; the harness reads the
-    # output directory from MAKEFUN_OUTPUT_DIR (default /output).
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    source = os.path.join(script_dir, "entry.png")
+def main():
+    here = os.path.dirname(os.path.abspath(__file__))
+    src = os.path.join(here, "entry.png")
+    with open(src, "rb") as f:
+        magic = f.read(3)
+    if magic != b"\xff\xd8\xff":
+        raise SystemExit("entry.png is not a JPEG")
     out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
     os.makedirs(out_dir, exist_ok=True)
-    destination = os.path.join(out_dir, "entry.png")
-    shutil.copyfile(source, destination)
+    dst = os.path.join(out_dir, "entry.png")
+    shutil.copyfile(src, dst)
+    print(f"wrote {dst} ({os.path.getsize(dst)} bytes)")
     return 0
 
 
