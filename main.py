@@ -1,24 +1,27 @@
-"""ai-excited-01 entrypoint.
+"""The Leap — ai-excited-01 entry.
 
-Copies the image entry.png that sits beside this file into the output
-directory, so the grader finds it at $MAKEFUN_OUTPUT_DIR/entry.png.
-Python 3.13, standard library only. Deterministic: the output is a
-byte-for-byte copy of the source image on every run.
+Copies the entry image (entry.png, sitting beside this script) into the
+output directory required by the competition harness. The copy is
+byte-for-byte, so the program is fully deterministic: every run produces
+the identical output file.
 """
 
 import os
 import shutil
-from pathlib import Path
+import sys
 
 
-def main() -> None:
-    # The source image lives next to this script; the destination is the
-    # output directory the platform provides (or /output by default).
-    here = Path(__file__).resolve().parent
-    out_dir = Path(os.environ.get("MAKEFUN_OUTPUT_DIR", "/output"))
-    out_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(here / "entry.png", out_dir / "entry.png")
+def main() -> int:
+    # The source image lives next to this script; the harness reads the
+    # output directory from MAKEFUN_OUTPUT_DIR (default /output).
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    source = os.path.join(script_dir, "entry.png")
+    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
+    os.makedirs(out_dir, exist_ok=True)
+    destination = os.path.join(out_dir, "entry.png")
+    shutil.copyfile(source, destination)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
